@@ -4,13 +4,11 @@ workflows:
     max_build_duration: 60
     environment:
       groups:
-        - firebase        # 👈 this loads all variables from the "firebase" group in Codemagic UI
-      android:
-        image: latest
+        - firebase         # loads your FIREBASE_JSON_B64 var
+      image: latest        # no "android:" block here
     scripts:
       - name: Decode google-services.json
         script: |
-          # Decode the Firebase config from base64 and save into app/google-services.json
           echo "$FIREBASE_JSON_B64" | base64 --decode > app/google-services.json
       - name: Build debug APK
         script: |
