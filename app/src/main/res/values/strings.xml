@@ -2,4 +2,14 @@
     <string name="app_name">Grocery List</string>
     <string name="manage_list">Manage List</string>
     <string name="shopping_mode">Shopping Mode</string>
+    <string name="add_item">Add Item</string>
+
+    <!-- units for the dropdown -->
+    <string name="unit_kg">kg</string>
+    <string name="unit_g">g</string>
+    <string name="unit_liter">liter</string>
+    <string name="unit_ml">ml</string>
+    <string name="unit_dozen">dozen</string>
+    <string name="unit_pack">pack</string>
+    <string name="unit_item">item</string>
 </resources>
