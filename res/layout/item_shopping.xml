@@ -1,0 +1,51 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_margin="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:padding="12dp" android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvName"
+                android:textStyle="bold" android:textSize="16sp"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/tvTotal"
+                android:textStyle="bold" android:textSize="16sp"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingTop="6dp">
+
+            <EditText
+                android:id="@+id/etQtyValue"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:inputType="numberDecimal"/>
+
+            <EditText
+                android:id="@+id/etQtyUnit"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:enabled="false"/>
+
+            <EditText
+                android:id="@+id/etUnitPrice"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="2" android:inputType="numberDecimal"
+                android:hint="Unit Price (Rs.)"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTogglePaid"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="MARK"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
