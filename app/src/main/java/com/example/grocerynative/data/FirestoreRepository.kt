@@ -23,7 +23,7 @@ class FirestoreRepository(
             if (snap != null && snap.exists()) {
                 onUpdate(snap.toObject(GroceryList::class.java) ?: GroceryList())
             } else {
-                // Initialize doc if missing
+                // Initialize document if it's missing
                 docRef.set(
                     mapOf(
                         "name" to "Shared Grocery List",
@@ -36,7 +36,6 @@ class FirestoreRepository(
             }
         }
 
-    // Use SET with merge so first write creates the document.
     suspend fun replaceItems(items: List<Item>) {
         ensureAuth()
         docRef.set(
@@ -52,7 +51,7 @@ class FirestoreRepository(
     suspend fun addItem(item: Item) {
         ensureAuth()
         val existing = docRef.get().await().toObject(GroceryList::class.java)
-        val newItems = (existing?.items ?: emptyList()) .toMutableList().apply { add(0, item) }
+        val newItems = (existing?.items ?: emptyList()).toMutableList().apply { add(0, item) }
         replaceItems(newItems)
     }
 
