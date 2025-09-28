@@ -26,17 +26,34 @@ android {
                 "proguard-rules.pro"
             )
         }
-        debug { isDebuggable = true }
+        debug {
+            // keep default debug config
+        }
     }
 
-    buildFeatures { viewBinding = true }
+    buildFeatures {
+        viewBinding = true
+    }
+
+    // 🔧 Ensure Java uses JDK 17
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+// 🔧 Ensure Kotlin uses JDK 17
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
+    // Firebase BOM keeps Firebase libs in sync
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 
+    // AndroidX / UI
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
