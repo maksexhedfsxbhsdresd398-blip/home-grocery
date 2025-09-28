@@ -1,5 +1,6 @@
 package com.example.grocerynative
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.grocerynative.data.FirestoreRepository
 import com.example.grocerynative.data.Item
@@ -14,10 +16,12 @@ import com.example.grocerynative.databinding.ActivityMainBinding
 import com.example.grocerynative.ui.GroceryViewModel
 import com.example.grocerynative.ui.Mode
 import com.example.grocerynative.ui.adapters.ItemsAdapter
-import com.example.grocerynative.ui.dialogs.AddItemDialog
 import com.example.grocerynative.ui.dialogs.ConfirmClearDialog
 import com.example.grocerynative.ui.dialogs.ConfirmDeleteDialog
 import com.example.grocerynative.ui.dialogs.EditItemDialog
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.collectLatest
@@ -26,6 +30,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: ItemsAdapter
 
     private val viewModel: GroceryViewModel by viewModels {
         object : androidx.lifecycle.ViewModelProvider.Factory {
@@ -41,13 +46,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var adapter: ItemsAdapter
+    // Manage form refs
+    private var etName: TextInputEditText? = null
+    private var etQtyVal: TextInputEditText? = null
+    private var autoUnit: MaterialAutoCompleteTextView? = null
+    private var btnAddItem: MaterialButton? = null
+    private var btnClearAllHeader: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
 
+        // Recycler adapter
         adapter = ItemsAdapter(
             items = emptyList(),
             mode = Mode.MANAGE,
@@ -65,23 +76,28 @@ class MainActivity : AppCompatActivity() {
         )
         binding.recycler.adapter = adapter
 
-        // Top: manage form vs shopping summary
+        // Inflate top views
         setupTopViews()
 
-        // Bottom nav
+        // Bottom nav behavior + initial style
         binding.btnManage.setOnClickListener { viewModel.switchMode(Mode.MANAGE) }
         binding.btnShopping.setOnClickListener { viewModel.switchMode(Mode.SHOPPING) }
+        applyNavStyle(activeManage = true)
 
+        // Observe mode + state
         lifecycleScope.launch {
             viewModel.mode.collectLatest { m ->
                 setTopForMode(m)
                 adapter.update(viewModel.state.value.items, m)
+                applyNavStyle(activeManage = (m == Mode.MANAGE))
             }
         }
         lifecycleScope.launch {
             viewModel.state.collectLatest { list ->
                 adapter.update(list.items, viewModel.mode.value)
                 updateShoppingSummary()
+                binding.emptyState.visibility =
+                    if (list.items.isEmpty()) View.VISIBLE else View.GONE
             }
         }
 
@@ -89,22 +105,37 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopViews() {
-        // Inflate manage form (reusing dialog layout as a simple inline form)
-        val manage = layoutInflater.inflate(R.layout.dialog_add_item, binding.topContainer, false)
+        // Manage header + inputs
+        val manage = layoutInflater.inflate(R.layout.manage_top, binding.topContainer, false)
+        etName = manage.findViewById(R.id.etName)
+        etQtyVal = manage.findViewById(R.id.etQtyVal)
+        autoUnit = manage.findViewById(R.id.autoUnit)
+        btnAddItem = manage.findViewById(R.id.btnAddItem)
+        btnClearAllHeader = manage.findViewById(R.id.btnClearAll)
 
-        // Add "Clear All" button
-        val clear = com.google.android.material.button.MaterialButton(this).apply {
-            text = "Clear All"
-            setOnClickListener {
-                ConfirmClearDialog { viewModel.clearAll() }
-                    .show(supportFragmentManager, "clear")
+        // default unit
+        autoUnit?.setText(getString(R.string.unit_kg), false)
+
+        btnAddItem?.setOnClickListener {
+            val name = etName?.text?.toString()?.trim().orEmpty()
+            val qty = etQtyVal?.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val unit = autoUnit?.text?.toString()?.ifBlank { "item" } ?: "item"
+            if (name.isNotEmpty() && qty > 0) {
+                val uid = FirebaseAuth.getInstance().currentUser?.uid
+                viewModel.addItem(name, qty, unit, uid)
+                etName?.setText("")
+                etQtyVal?.setText("")
+                autoUnit?.setText(getString(R.string.unit_kg), false)
             }
         }
-        (manage as LinearLayout).addView(clear)
+
+        btnClearAllHeader?.setOnClickListener {
+            ConfirmClearDialog { viewModel.clearAll() }.show(supportFragmentManager, "clear")
+        }
 
         binding.topContainer.addView(manage, 0)
 
-        // Inflate shopping summary using a simple built-in layout (two lines)
+        // Shopping header (simple two-line)
         val shopping = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.topContainer, false)
         shopping.id = View.generateViewId()
         binding.topContainer.addView(shopping, 1)
@@ -115,15 +146,7 @@ class MainActivity : AppCompatActivity() {
             if (mode == Mode.MANAGE) View.VISIBLE else View.GONE
         binding.topContainer.getChildAt(1).visibility =
             if (mode == Mode.SHOPPING) View.VISIBLE else View.GONE
-
-        if (mode == Mode.MANAGE) {
-            AddItemDialog { name, v, u ->
-                val uid = FirebaseAuth.getInstance().currentUser?.uid
-                viewModel.addItem(name, v, u, uid)
-            }.show(supportFragmentManager, "add")
-        } else {
-            updateShoppingSummary()
-        }
+        if (mode == Mode.SHOPPING) updateShoppingSummary()
     }
 
     private fun updateShoppingSummary() {
@@ -132,5 +155,24 @@ class MainActivity : AppCompatActivity() {
         val subtitle = shopping.findViewById<TextView>(android.R.id.text2)
         title.text = "Shopping Cart Summary"
         subtitle.text = "Actual Paid: Rs. %.2f".format(viewModel.actualTotalRs())
+    }
+
+    private fun applyNavStyle(activeManage: Boolean) {
+        val blue = ContextCompat.getColor(this, R.color.primary_blue)
+        val white = ContextCompat.getColor(this, android.R.color.white)
+        val grayText = ContextCompat.getColor(this, R.color.gray_600)
+
+        fun style(btn: MaterialButton, bg: Int, fg: Int) {
+            btn.backgroundTintList = ColorStateList.valueOf(bg)
+            btn.setTextColor(fg)
+        }
+
+        if (activeManage) {
+            style(binding.btnManage, blue, white)
+            style(binding.btnShopping, white, grayText)
+        } else {
+            style(binding.btnManage, white, grayText)
+            style(binding.btnShopping, blue, white)
+        }
     }
 }
