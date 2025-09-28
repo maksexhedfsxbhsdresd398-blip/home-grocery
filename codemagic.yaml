@@ -2,39 +2,31 @@ workflows:
   android_native:
     name: Grocery Native APK
     max_build_duration: 60
-    instance_type: linux_x2
     environment:
       groups:
-        - firebase            # must contain FIREBASE_JSON_B64 (Secret) in Codemagic UI
+        - firebase            # contains FIREBASE_JSON_B64 (Secret) in Codemagic UI
     scripts:
       - name: Decode google-services.json
         script: |
           set -e
           mkdir -p app
           echo "$FIREBASE_JSON_B64" | base64 --decode > app/google-services.json
-          # Fail early if the file is empty/missing
-          test -s app/google-services.json || { echo "google-services.json was not created. Check FIREBASE_JSON_B64."; exit 1; }
+          test -s app/google-services.json || { echo "google-services.json missing/empty. Check FIREBASE_JSON_B64."; exit 1; }
 
       - name: One-click verify (structure & essentials)
         script: |
           set -e
-          echo "=== TREE: repo root ==="
-          ls -la
-          echo
-          echo "=== TREE: app ==="
-          ls -la app || true
-          echo
-          echo "=== TREE: app/src/main (maxdepth 3) ==="
+          echo "=== TREE: repo root ==="; ls -la
+          echo; echo "=== TREE: app ==="; ls -la app || true
+          echo; echo "=== TREE: app/src/main (maxdepth 3) ==="
           find app/src/main -maxdepth 3 -print | sort || true
-          echo
-          echo "=== VERIFY essential files ==="
+          echo; echo "=== VERIFY essentials ==="
           [ -f app/build.gradle.kts ] || { echo "Missing: app/build.gradle.kts"; exit 1; }
           [ -f app/src/main/AndroidManifest.xml ] || { echo "Missing: app/src/main/AndroidManifest.xml"; exit 1; }
           [ -d app/src/main/java ] || { echo "Missing: app/src/main/java/"; exit 1; }
-          # Optional: ensure your package path exists (edit if you use a different appId)
           PKG_PATH="app/src/main/java/com/example/grocerynative"
           if [ ! -d "$PKG_PATH" ]; then
-            echo "WARNING: $PKG_PATH not found. If your applicationId differs, this is OK—but ensure sources are under app/src/main/java/<your/package>/"
+            echo "NOTE: $PKG_PATH not found. If your applicationId differs, ensure sources are under app/src/main/java/<your/package>/"
           fi
           echo "=== VERIFY done ==="
 
