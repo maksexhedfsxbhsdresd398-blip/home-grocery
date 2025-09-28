@@ -4,7 +4,7 @@ workflows:
     max_build_duration: 60
     environment:
       groups:
-        - firebase            # contains FIREBASE_JSON_B64 (Secret) in Codemagic UI
+        - firebase            # contains FIREBASE_JSON_B64 (Secret)
     scripts:
       - name: Decode google-services.json
         script: |
@@ -12,6 +12,19 @@ workflows:
           mkdir -p app
           echo "$FIREBASE_JSON_B64" | base64 --decode > app/google-services.json
           test -s app/google-services.json || { echo "google-services.json missing/empty. Check FIREBASE_JSON_B64."; exit 1; }
+
+      - name: Ensure Gradle wrapper (generate if missing)
+        script: |
+          set -e
+          if [ ! -f ./gradlew ]; then
+            echo "Gradle wrapper not found. Installing Gradle 8.7 locally and generating wrapper..."
+            curl -sL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o /tmp/gradle-8.7-bin.zip
+            unzip -q /tmp/gradle-8.7-bin.zip -d "$HOME/gradle"
+            export PATH="$HOME/gradle/gradle-8.7/bin:$PATH"
+            gradle -v
+            gradle wrapper --gradle-version 8.7
+          fi
+          chmod +x ./gradlew
 
       - name: One-click verify (structure & essentials)
         script: |
