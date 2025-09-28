@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.grocerynative.data.FirestoreRepository
 import com.example.grocerynative.databinding.ActivityMainBinding
 import com.example.grocerynative.ui.GroceryViewModel
@@ -63,8 +64,7 @@ class MainActivity : AppCompatActivity() {
             mode = Mode.MANAGE,
             onToggle = { id -> viewModel.togglePurchased(id) },
             onDelete = { id ->
-                ConfirmDeleteDialog { viewModel.deleteItem(id) }
-                    .show(supportFragmentManager, "del")
+                ConfirmDeleteDialog { viewModel.deleteItem(id) }.show(supportFragmentManager, "del")
             },
             onEdit = { item ->
                 EditItemDialog(item) { name, v, u ->
@@ -73,6 +73,10 @@ class MainActivity : AppCompatActivity() {
             },
             onPriceChange = { id, price -> viewModel.updateUnitPrice(id, price) }
         )
+
+        // ✅ REQUIRED: give the RecyclerView a LayoutManager
+        binding.recycler.layoutManager = LinearLayoutManager(this)
+        binding.recycler.setHasFixedSize(true)
         binding.recycler.adapter = adapter
 
         setupTopViews()
