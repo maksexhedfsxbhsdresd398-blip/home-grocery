@@ -4,8 +4,8 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Manage form refs
     private var etName: TextInputEditText? = null
     private var etQtyVal: TextInputEditText? = null
     private var autoUnit: MaterialAutoCompleteTextView? = null
@@ -76,15 +75,12 @@ class MainActivity : AppCompatActivity() {
         )
         binding.recycler.adapter = adapter
 
-        // Inflate headers
         setupTopViews()
 
-        // Bottom nav
         binding.btnManage.setOnClickListener { viewModel.switchMode(Mode.MANAGE) }
         binding.btnShopping.setOnClickListener { viewModel.switchMode(Mode.SHOPPING) }
         applyNavStyle(activeManage = true)
 
-        // Observe mode & list
         lifecycleScope.launch {
             viewModel.mode.collectLatest { m ->
                 setTopForMode(m)
@@ -105,7 +101,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopViews() {
-        // Manage header
         val manage = layoutInflater.inflate(R.layout.manage_top, binding.topContainer, false)
         etName = manage.findViewById(R.id.etName)
         etQtyVal = manage.findViewById(R.id.etQtyVal)
@@ -114,11 +109,8 @@ class MainActivity : AppCompatActivity() {
         btnAddItem = manage.findViewById(R.id.btnAddItem)
         btnClearAllHeader = manage.findViewById(R.id.btnClearAll)
 
-        // ✅ Feed items to dropdown + default
         autoUnit?.setSimpleItems(resources.getStringArray(R.array.units_array))
         autoUnit?.setText(getString(R.string.unit_kg), false)
-
-        // ✅ Open dropdown on tap/focus/end-icon
         autoUnit?.setOnClickListener { autoUnit?.showDropDown() }
         autoUnit?.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) autoUnit?.showDropDown() }
         unitLayout?.setEndIconOnClickListener { autoUnit?.showDropDown() }
@@ -133,6 +125,9 @@ class MainActivity : AppCompatActivity() {
                 etName?.setText("")
                 etQtyVal?.setText("")
                 autoUnit?.setText(getString(R.string.unit_kg), false)
+                Toast.makeText(this, "Item added", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Enter name and value", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -142,7 +137,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.topContainer.addView(manage, 0)
 
-        // Shopping header
         val shopping = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.topContainer, false)
         shopping.id = View.generateViewId()
         binding.topContainer.addView(shopping, 1)
