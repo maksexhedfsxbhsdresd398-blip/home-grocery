@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+
+    <EditText android:id="@+id/etName"
+        android:hint="Item name" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:paddingTop="8dp">
+
+        <EditText android:id="@+id/etQtyVal"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:inputType="numberDecimal" android:hint="Value"/>
+
+        <EditText android:id="@+id/etQtyUnit"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:hint="Unit (kg/g/liter/ml/pack/item)"/>
+    </LinearLayout>
+</LinearLayout>
