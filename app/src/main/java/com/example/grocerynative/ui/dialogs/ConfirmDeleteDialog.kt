@@ -14,13 +14,3 @@ class ConfirmDeleteDialog(private val onOk:()->Unit): DialogFragment() {
             .setNegativeButton("Cancel", null)
             .create()
 }
-
-class ConfirmClearDialog(private val onOk:()->Unit): DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        AlertDialog.Builder(requireContext())
-            .setTitle("Confirm Clear List")
-            .setMessage("Delete ALL items permanently?")
-            .setPositiveButton("Clear") {_,_-> onOk() }
-            .setNegativeButton("Cancel", null)
-            .create()
-}
