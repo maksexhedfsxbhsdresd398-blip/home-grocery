@@ -22,19 +22,17 @@
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnManage"
-            style="@style/Widget.Material3.Button.Filled"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/manage_list" />
+    android:id="@+id/btnManage"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:text="@string/manage_list" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnShopping"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/shopping_mode" />
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/btnShopping"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:text="@string/shopping_mode" />
     </LinearLayout>
 </LinearLayout>
