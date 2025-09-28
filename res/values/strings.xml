@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Grocery List</string>
+    <string name="manage_list">Manage List</string>
+    <string name="shopping_mode">Shopping Mode</string>
+</resources>
