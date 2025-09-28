@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.grocerynative.data.FirestoreRepository
-import com.example.grocerynative.data.Item
 import com.example.grocerynative.databinding.ActivityMainBinding
 import com.example.grocerynative.ui.GroceryViewModel
 import com.example.grocerynative.ui.Mode
@@ -22,6 +21,7 @@ import com.example.grocerynative.ui.dialogs.EditItemDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.collectLatest
@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private var etName: TextInputEditText? = null
     private var etQtyVal: TextInputEditText? = null
     private var autoUnit: MaterialAutoCompleteTextView? = null
+    private var unitLayout: TextInputLayout? = null
     private var btnAddItem: MaterialButton? = null
     private var btnClearAllHeader: TextView? = null
 
@@ -58,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
 
-        // Recycler adapter
         adapter = ItemsAdapter(
             items = emptyList(),
             mode = Mode.MANAGE,
@@ -76,15 +76,15 @@ class MainActivity : AppCompatActivity() {
         )
         binding.recycler.adapter = adapter
 
-        // Inflate top views
+        // Inflate headers
         setupTopViews()
 
-        // Bottom nav behavior + initial style
+        // Bottom nav
         binding.btnManage.setOnClickListener { viewModel.switchMode(Mode.MANAGE) }
         binding.btnShopping.setOnClickListener { viewModel.switchMode(Mode.SHOPPING) }
         applyNavStyle(activeManage = true)
 
-        // Observe mode + state
+        // Observe mode & list
         lifecycleScope.launch {
             viewModel.mode.collectLatest { m ->
                 setTopForMode(m)
@@ -105,16 +105,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopViews() {
-        // Manage header + inputs
+        // Manage header
         val manage = layoutInflater.inflate(R.layout.manage_top, binding.topContainer, false)
         etName = manage.findViewById(R.id.etName)
         etQtyVal = manage.findViewById(R.id.etQtyVal)
         autoUnit = manage.findViewById(R.id.autoUnit)
+        unitLayout = manage.findViewById(R.id.unitLayout)
         btnAddItem = manage.findViewById(R.id.btnAddItem)
         btnClearAllHeader = manage.findViewById(R.id.btnClearAll)
 
-        // default unit
+        // ✅ Feed items to dropdown + default
+        autoUnit?.setSimpleItems(resources.getStringArray(R.array.units_array))
         autoUnit?.setText(getString(R.string.unit_kg), false)
+
+        // ✅ Open dropdown on tap/focus/end-icon
+        autoUnit?.setOnClickListener { autoUnit?.showDropDown() }
+        autoUnit?.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) autoUnit?.showDropDown() }
+        unitLayout?.setEndIconOnClickListener { autoUnit?.showDropDown() }
 
         btnAddItem?.setOnClickListener {
             val name = etName?.text?.toString()?.trim().orEmpty()
@@ -135,7 +142,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.topContainer.addView(manage, 0)
 
-        // Shopping header (simple two-line)
+        // Shopping header
         val shopping = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.topContainer, false)
         shopping.id = View.generateViewId()
         binding.topContainer.addView(shopping, 1)
@@ -161,12 +168,10 @@ class MainActivity : AppCompatActivity() {
         val blue = ContextCompat.getColor(this, R.color.primary_blue)
         val white = ContextCompat.getColor(this, android.R.color.white)
         val grayText = ContextCompat.getColor(this, R.color.gray_600)
-
         fun style(btn: MaterialButton, bg: Int, fg: Int) {
             btn.backgroundTintList = ColorStateList.valueOf(bg)
             btn.setTextColor(fg)
         }
-
         if (activeManage) {
             style(binding.btnManage, blue, white)
             style(binding.btnShopping, white, grayText)
