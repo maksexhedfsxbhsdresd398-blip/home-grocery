@@ -51,7 +51,7 @@
             android:inputType="textCapSentences" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Row: value + unit + Add button -->
+    <!-- Row: value + unit dropdown + Add button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -81,23 +81,26 @@
             android:layout_width="8dp"
             android:layout_height="1dp" />
 
-        <!-- Exposed dropdown for units -->
+        <!-- ✅ Exposed dropdown for units (with end icon) -->
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:id="@+id/unitLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            app:boxBackgroundMode="filled"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:endIconMode="dropdown_menu">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/autoUnit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="kg"
-                android:inputType="none"
-                android:imeOptions="actionDone"
-                android:singleLine="true"
-                android:completionThreshold="1"
-                android:entries="@array/units_array"/>
+                android:importantForAutofill="no"
+                android:imeOptions="actionDone" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Space
@@ -113,7 +116,7 @@
             app:cornerRadius="16dp" />
     </LinearLayout>
 
-    <!-- Thin divider like your original -->
+    <!-- Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
