@@ -1,9 +1,9 @@
 package com.example.grocerynative.data
 
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
 class FirestoreRepository(
@@ -21,34 +21,39 @@ class FirestoreRepository(
         docRef.addSnapshotListener { snap, e ->
             if (e != null) { onError(e); return@addSnapshotListener }
             if (snap != null && snap.exists()) {
-                val data = snap.toObject(GroceryList::class.java) ?: GroceryList()
-                onUpdate(data)
+                onUpdate(snap.toObject(GroceryList::class.java) ?: GroceryList())
             } else {
-                // initialize if missing
+                // Initialize doc if missing
                 docRef.set(
                     mapOf(
                         "name" to "Shared Grocery List",
                         "items" to emptyList<Item>(),
                         "lastUpdated" to FieldValue.serverTimestamp(),
                         "ownerId" to auth.currentUser?.uid
-                    )
+                    ),
+                    SetOptions.merge()
                 )
             }
         }
 
+    // Use SET with merge so first write creates the document.
     suspend fun replaceItems(items: List<Item>) {
-        docRef.update(
+        ensureAuth()
+        docRef.set(
             mapOf(
                 "items" to items,
                 "lastUpdated" to FieldValue.serverTimestamp(),
                 "ownerId" to auth.currentUser?.uid
-            )
+            ),
+            SetOptions.merge()
         ).await()
     }
 
     suspend fun addItem(item: Item) {
-        val list = docRef.get().await().toObject(GroceryList::class.java) ?: GroceryList()
-        replaceItems(list.items.toMutableList().apply { add(0, item) })
+        ensureAuth()
+        val existing = docRef.get().await().toObject(GroceryList::class.java)
+        val newItems = (existing?.items ?: emptyList()) .toMutableList().apply { add(0, item) }
+        replaceItems(newItems)
     }
 
     suspend fun clearAll() {
