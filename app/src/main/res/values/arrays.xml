@@ -1,0 +1,11 @@
+<resources>
+    <string-array name="units_array">
+        <item>@string/unit_kg</item>
+        <item>@string/unit_g</item>
+        <item>@string/unit_liter</item>
+        <item>@string/unit_ml</item>
+        <item>@string/unit_dozen</item>
+        <item>@string/unit_pack</item>
+        <item>@string/unit_item</item>
+    </string-array>
+</resources>
