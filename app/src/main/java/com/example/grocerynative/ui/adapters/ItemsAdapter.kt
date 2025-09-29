@@ -1,11 +1,14 @@
 package com.example.grocerynative.ui.adapters
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.grocerynative.R
 import com.example.grocerynative.data.Item
@@ -25,18 +28,12 @@ class ItemsAdapter(
     private var data: MutableList<Item> = items.toMutableList()
     private var currentMode: Mode = mode
 
-    override fun getItemViewType(position: Int): Int =
-        if (currentMode == Mode.MANAGE) 0 else 1
+    override fun getItemViewType(position: Int): Int = if (currentMode == Mode.MANAGE) 0 else 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inf = LayoutInflater.from(parent.context)
-        return if (viewType == 0) {
-            val v = inf.inflate(R.layout.item_manage_card, parent, false)
-            ManageVH(v)
-        } else {
-            val v = inf.inflate(R.layout.item_shopping_card, parent, false)
-            ShopVH(v)
-        }
+        return if (viewType == 0) ManageVH(inf.inflate(R.layout.item_manage_card, parent, false))
+        else ShopVH(inf.inflate(R.layout.item_shopping_card, parent, false))
     }
 
     override fun getItemCount(): Int = data.size
@@ -54,6 +51,7 @@ class ItemsAdapter(
         notifyDataSetChanged()
     }
 
+    // ---------- MANAGE ----------
     inner class ManageVH(v: View) : RecyclerView.ViewHolder(v) {
         private val ivCheck: ImageView = v.findViewById(R.id.ivCheck)
         private val tvName: TextView = v.findViewById(R.id.tvName)
@@ -64,6 +62,7 @@ class ItemsAdapter(
         fun bind(item: Item) {
             tvName.text = item.name.ifBlank { "(unnamed)" }
             tvQty.text = "Qty: ${item.quantity}"
+
             ivCheck.setImageResource(
                 if (item.isPurchased) android.R.drawable.checkbox_on_background
                 else android.R.drawable.checkbox_off_background
@@ -74,6 +73,7 @@ class ItemsAdapter(
         }
     }
 
+    // ---------- SHOPPING ----------
     inner class ShopVH(v: View) : RecyclerView.ViewHolder(v) {
         private val tvName: TextView = v.findViewById(R.id.tvName)
         private val tvTotal: TextView = v.findViewById(R.id.tvTotal)
@@ -83,29 +83,63 @@ class ItemsAdapter(
         private val etPrice: TextInputEditText = v.findViewById(R.id.etPrice)
         private val btnMark: MaterialButton = v.findViewById(R.id.btnMark)
 
+        private fun calcTotal(q: String, p: String): Double {
+            val qty = q.toDoubleOrNull() ?: 0.0
+            val price = p.toDoubleOrNull() ?: 0.0
+            return qty * price
+        }
+
+        private fun styleMark(isPaid: Boolean) {
+            val ctx = itemView.context
+            if (isPaid) {
+                btnMark.text = "PAID"
+                btnMark.isEnabled = false
+                btnMark.backgroundTintList =
+                    ContextCompat.getColorStateList(ctx, R.color.paid_gray)
+            } else {
+                btnMark.text = "MARK"
+                btnMark.isEnabled = true
+                btnMark.backgroundTintList =
+                    ContextCompat.getColorStateList(ctx, R.color.green_success)
+            }
+        }
+
         fun bind(item: Item) {
             tvName.text = item.name
+
             // parse "3 kg"
             val parts = item.quantity.trim().split(" ")
-            val qty = parts.getOrNull(0) ?: "1"
+            val qText = parts.getOrNull(0) ?: "1"
             val unit = parts.getOrNull(1) ?: "kg"
-            etQtyVal.setText(qty)
             tvUnit.text = unit
+            etQtyVal.setText(qText)
             etPrice.setText(if (item.actualUnitPrice == 0.0) "" else item.actualUnitPrice.toString())
 
-            // Total = qty * unit price (simple)
-            val total = (etQtyVal.text?.toString()?.toDoubleOrNull() ?: 0.0) *
-                    (etPrice.text?.toString()?.toDoubleOrNull() ?: 0.0)
-            tvTotal.text = "Total: Rs. %.2f".format(total)
+            // live total update
+            fun updateTotal() {
+                val t = calcTotal(etQtyVal.text?.toString() ?: "", etPrice.text?.toString() ?: "")
+                tvTotal.text = "Total: Rs. %.2f".format(t)
+            }
+            updateTotal()
+
+            val watcher = object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { updateTotal() }
+                override fun afterTextChanged(s: Editable?) {}
+            }
+            etQtyVal.removeTextChangedListener(watcher); etQtyVal.addTextChangedListener(watcher)
+            etPrice.removeTextChangedListener(watcher);  etPrice.addTextChangedListener(watcher)
 
             btnEdit.setOnClickListener { onEdit(item) }
 
-            btnMark.text = if (item.isPurchased) "MARKED" else "MARK"
-            btnMark.isEnabled = true
+            styleMark(item.isPurchased)
             btnMark.setOnClickListener {
+                // Save price, mark purchased → ViewModel will persist and header will recompute
                 val price = etPrice.text?.toString()?.toDoubleOrNull() ?: 0.0
                 onPriceChange(item.id, price)
                 onToggle(item.id)
+                styleMark(true) // local feedback; list will refresh from state anyway
+                updateTotal()
             }
         }
     }
