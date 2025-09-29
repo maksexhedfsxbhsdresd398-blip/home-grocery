@@ -4,39 +4,37 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="12dp"
-    app:cardElevation="2dp"
-    app:cardCornerRadius="16dp"
-    app:strokeWidth="0dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="@color/card_bg">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
+        android:layout_height="76dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp"
         android:gravity="center_vertical">
 
-        <!-- circle check (visual only) -->
         <ImageView
             android:id="@+id/ivCheck"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_alignParentStart="true"
-            android:contentDescription="@null"
-            android:tint="#B0B8C4"
-            android:src="@android:drawable/checkbox_off_background"/>
+            android:tint="@color/gray_600"
+            android:src="@android:drawable/checkbox_off_background"
+            android:contentDescription="@null"/>
 
         <TextView
             android:id="@+id/tvName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/ivCheck"
+            android:layout_toEndOf="@+id/ivCheck"
             android:layout_marginStart="12dp"
             android:textStyle="bold"
             android:textColor="#111827"
             android:textSize="18sp"
             android:maxLines="1"
-            android:ellipsize="end"
-            android:text="Item"/>
+            android:ellipsize="end"/>
 
         <TextView
             android:id="@+id/tvQty"
@@ -46,28 +44,26 @@
             android:layout_toEndOf="@id/ivCheck"
             android:layout_marginStart="12dp"
             android:textColor="#6B7280"
-            android:text="Qty: 3 kg"/>
+            android:text="Qty: 1 kg"/>
 
-        <!-- edit -->
-        <ImageButton
-            android:id="@+id/btnEdit"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@null"
-            android:tint="#6B7280"
-            android:src="@android:drawable/ic_menu_edit"/>
-
-        <!-- delete -->
         <ImageButton
             android:id="@+id/btnDelete"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_toStartOf="@id/btnEdit"
+            android:layout_alignParentEnd="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@null"
             android:tint="#6B7280"
-            android:src="@android:drawable/ic_menu_delete"/>
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="@null"/>
+
+        <ImageButton
+            android:id="@+id/btnEdit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toStartOf="@id/btnDelete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="#6B7280"
+            android:src="@android:drawable/ic_menu_edit"
+            android:contentDescription="@null"/>
     </RelativeLayout>
 </com.google.android.material.card.MaterialCardView>
