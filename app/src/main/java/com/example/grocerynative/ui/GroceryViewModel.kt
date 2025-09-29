@@ -97,10 +97,12 @@ class GroceryViewModel(private val repo: FirestoreRepository): ViewModel() {
     }
 
     fun actualTotalRs(): Double {
-        return _state.value.items.filter { it.purchased }.sumOf { item ->
-            val (v, u) = splitQuantity(item.quantity)
-            val normalized = normalizeToKgOrL(v, u)
-            normalized * item.actualUnitPrice
+    return _state.value.items.asSequence()
+        .filter { it.purchased }
+        .fold(0.0) { acc, item ->
+            val (v, u) = com.example.grocerynative.util.splitQuantity(item.quantity)
+            val normalized = com.example.grocerynative.util.normalizeToKgOrL(v, u)
+            acc + (normalized * item.actualUnitPrice)
         }
-    }
+}
 }
