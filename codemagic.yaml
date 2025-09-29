@@ -1,58 +1,21 @@
 workflows:
   android_native:
-    name: Grocery Native APK
+    name: Android (Gradle)
     max_build_duration: 60
     environment:
-      groups:
-        - firebase            # contains FIREBASE_JSON_B64 (Secret)
+      vars:
+        JAVA_VERSION: 17
     scripts:
-      - name: Decode google-services.json
+      - name: Show Java/Gradle versions
         script: |
-          set -e
-          mkdir -p app
-          echo "$FIREBASE_JSON_B64" | base64 --decode > app/google-services.json
-          test -s app/google-services.json || { echo "google-services.json missing/empty. Check FIREBASE_JSON_B64."; exit 1; }
-
-      - name: Ensure Gradle wrapper (generate if missing)
-        script: |
-          set -e
-          if [ ! -f ./gradlew ]; then
-            echo "Gradle wrapper not found. Installing Gradle 8.7 locally and generating wrapper..."
-            curl -sL https://services.gradle.org/distributions/gradle-8.7-bin.zip -o /tmp/gradle-8.7-bin.zip
-            unzip -q /tmp/gradle-8.7-bin.zip -d "$HOME/gradle"
-            export PATH="$HOME/gradle/gradle-8.7/bin:$PATH"
-            gradle -v
-            gradle wrapper --gradle-version 8.7
-          fi
-          chmod +x ./gradlew
-
-      - name: One-click verify (structure & essentials)
-        script: |
-          set -e
-          echo "=== TREE: repo root ==="; ls -la
-          echo; echo "=== TREE: app ==="; ls -la app || true
-          echo; echo "=== TREE: app/src/main (maxdepth 3) ==="
-          find app/src/main -maxdepth 3 -print | sort || true
-          echo; echo "=== VERIFY essentials ==="
-          [ -f app/build.gradle.kts ] || { echo "Missing: app/build.gradle.kts"; exit 1; }
-          [ -f app/src/main/AndroidManifest.xml ] || { echo "Missing: app/src/main/AndroidManifest.xml"; exit 1; }
-          [ -d app/src/main/java ] || { echo "Missing: app/src/main/java/"; exit 1; }
-          PKG_PATH="app/src/main/java/com/example/grocerynative"
-          if [ ! -d "$PKG_PATH" ]; then
-            echo "NOTE: $PKG_PATH not found. If your applicationId differs, ensure sources are under app/src/main/java/<your/package>/"
-          fi
-          echo "=== VERIFY done ==="
-
-      - name: Show Gradle/Java versions
-        script: |
-          set -e
           java -version || true
-          ./gradlew -v
-
+          ./gradlew -v || true
       - name: Build debug APK
-        script: |
-          set -e
-          ./gradlew --no-daemon clean :app:assembleDebug
-
+        script: ./gradlew --no-daemon :app:assembleDebug
     artifacts:
       - app/build/outputs/**/*.apk
+      - app/build/outputs/**/*.aab
+    cache:
+      cache_paths:
+        - ~/.gradle/caches
+        - ~/.gradle/wrapper
