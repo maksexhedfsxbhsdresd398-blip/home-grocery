@@ -1,10 +1,12 @@
 <resources>
     <color name="primary_blue">#2563EB</color>
-    <color name="gray_600">#4B5563</color>
     <color name="green_success">#16A34A</color>
-
-    <!-- new -->
-    <color name="card_bg">#F1F5FF</color>
+    <color name="gray_600">#4B5563</color>
+    <color name="gray_400">#9CA3AF</color>
     <color name="stroke_soft">#E5E7EB</color>
-    <color name="paid_gray">#9CA3AF</color>
+    <color name="card_bg">#F1F5FF</color>
+
+    <!-- button states -->
+    <color name="mark_blue">@color/primary_blue</color>
+    <color name="paid_green">@color/green_success</color>
 </resources>
