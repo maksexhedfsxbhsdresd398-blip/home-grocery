@@ -60,17 +60,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         adapter = ItemsAdapter(
-            items = emptyList(),
-            mode = Mode.MANAGE,
-            onToggle = { id -> viewModel.togglePurchased(id) },
-            onDelete = { id -> viewModel.deleteItem(id) },
-            onEdit = { item ->
-                EditItemDialog(item) { name, v, u ->
-                    viewModel.editItem(item.id, name, v, u)
-                }.show(supportFragmentManager, "edit")
-            },
-            onPriceChange = { id, price -> viewModel.updateUnitPrice(id, price) }
-        )
+    items = emptyList(),
+    mode = Mode.MANAGE,
+    onToggle = { id -> viewModel.togglePurchased(id) },
+    onDelete = { id -> viewModel.deleteItem(id) },
+    onEdit   = { item ->
+        EditItemDialog(item) { name, v, u ->
+            viewModel.editItem(item.id, name, v, u)
+        }.show(supportFragmentManager, "edit")
+    },
+    onMarkPaid = { id, qty, unit, price ->
+        viewModel.markItemPaid(id, qty, unit, price)
+    }
+)
 
         binding.recycler.layoutManager = LinearLayoutManager(this)
         binding.recycler.setHasFixedSize(true)
