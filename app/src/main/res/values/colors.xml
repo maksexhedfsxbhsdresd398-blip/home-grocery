@@ -1,4 +1,5 @@
 <resources>
-    <color name="primary_blue">#2563EB</color>  <!-- tailwind blue-600 -->
+    <color name="primary_blue">#2563EB</color>
     <color name="gray_600">#4B5563</color>
+    <color name="green_success">#16A34A</color>
 </resources>
