@@ -100,4 +100,46 @@ class ItemsAdapter(
             } else {
                 btnMark.text = "MARK"
                 btnMark.isEnabled = true
-                btnMark.backgroundTint
+                btnMark.backgroundTintList =
+                    ContextCompat.getColorStateList(ctx, R.color.green_success)
+            }
+        }
+
+        fun bind(item: Item) {
+            tvName.text = item.name
+
+            // parse "3 kg"
+            val parts = item.quantity.trim().split(" ")
+            val qText = parts.getOrNull(0) ?: "1"
+            val unit = parts.getOrNull(1) ?: "kg"
+            tvUnit.text = unit
+            etQtyVal.setText(qText)
+            etPrice.setText(if (item.actualUnitPrice == 0.0) "" else item.actualUnitPrice.toString())
+
+            fun updateTotal() {
+                val t = calcTotal(etQtyVal.text?.toString() ?: "", etPrice.text?.toString() ?: "")
+                tvTotal.text = "Total: Rs. %.2f".format(t)
+            }
+            updateTotal()
+
+            val watcher = object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { updateTotal() }
+                override fun afterTextChanged(s: Editable?) {}
+            }
+            etQtyVal.addTextChangedListener(watcher)
+            etPrice.addTextChangedListener(watcher)
+
+            btnEdit.setOnClickListener { onEdit(item) }
+
+            styleMark(item.isPurchased)
+            btnMark.setOnClickListener {
+                val qtyVal = etQtyVal.text?.toString()?.toDoubleOrNull() ?: 0.0
+                val price = etPrice.text?.toString()?.toDoubleOrNull() ?: 0.0
+                onMarkPaid(item.id, qtyVal, unit, price)   // ✅ single atomic update
+                styleMark(true)                             // instant feedback
+                updateTotal()
+            }
+        }
+    }
+}
