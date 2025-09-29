@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
     }
 )
 
+
         binding.recycler.layoutManager = LinearLayoutManager(this)
         binding.recycler.setHasFixedSize(true)
         binding.recycler.adapter = adapter
