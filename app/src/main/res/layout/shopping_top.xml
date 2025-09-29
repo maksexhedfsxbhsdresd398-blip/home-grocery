@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#E8F1FF"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvShopTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Shopping Cart Summary"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="#1F2937"
+        android:gravity="center"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvPaidLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Actual Paid"
+                android:textColor="#2563EB"/>
+
+            <TextView
+                android:id="@+id/tvPaidValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. 0.00"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#2563EB"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnClearShopping"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="Clear All Items"
+            android:textStyle="bold"
+            android:textColor="#DC2626"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="#D1D5DB"/>
+</LinearLayout>
