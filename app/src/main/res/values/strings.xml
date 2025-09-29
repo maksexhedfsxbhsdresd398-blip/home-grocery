@@ -1,9 +1,7 @@
 <resources>
-    <string name="app_name">Grocery List</string>
-    <string name="manage_list">Manage List</string>
-    <string name="shopping_mode">Shopping Mode</string>
-    <string name="add_item">Add Item</string>
-
-    <!-- For default dropdown text -->
+    <string name="hint_item_name">Item Name (e.g., Milk)</string>
+    <string name="hint_value">Value</string>
+    <string name="label_unit">Unit</string>
+    <string name="btn_add_item">Add Item</string>
     <string name="unit_kg">kg</string>
 </resources>
