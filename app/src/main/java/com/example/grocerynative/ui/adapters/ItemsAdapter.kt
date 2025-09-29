@@ -22,7 +22,6 @@ class ItemsAdapter(
     private val onToggle: (String) -> Unit,
     private val onDelete: (String) -> Unit,
     private val onEdit: (Item) -> Unit,
-    /** ✅ new: atomic mark callback */
     private val onMarkPaid: (id: String, qtyVal: Double, unit: String, price: Double) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -52,7 +51,7 @@ class ItemsAdapter(
         notifyDataSetChanged()
     }
 
-    // ---------- MANAGE ----------
+    // MANAGE
     inner class ManageVH(v: View) : RecyclerView.ViewHolder(v) {
         private val ivCheck: ImageView = v.findViewById(R.id.ivCheck)
         private val tvName: TextView = v.findViewById(R.id.tvName)
@@ -63,9 +62,8 @@ class ItemsAdapter(
         fun bind(item: Item) {
             tvName.text = item.name.ifBlank { "(unnamed)" }
             tvQty.text = "Qty: ${item.quantity}"
-
             ivCheck.setImageResource(
-                if (item.isPurchased) android.R.drawable.checkbox_on_background
+                if (item.purchased) android.R.drawable.checkbox_on_background
                 else android.R.drawable.checkbox_off_background
             )
             ivCheck.setOnClickListener { onToggle(item.id) }
@@ -74,7 +72,7 @@ class ItemsAdapter(
         }
     }
 
-    // ---------- SHOPPING ----------
+    // SHOPPING
     inner class ShopVH(v: View) : RecyclerView.ViewHolder(v) {
         private val tvName: TextView = v.findViewById(R.id.tvName)
         private val tvTotal: TextView = v.findViewById(R.id.tvTotal)
@@ -90,25 +88,21 @@ class ItemsAdapter(
             return qty * price
         }
 
-        private fun styleMark(isPaid: Boolean) {
+        private fun styleMark(paid: Boolean) {
             val ctx = itemView.context
-            if (isPaid) {
+            if (paid) {
                 btnMark.text = "PAID"
                 btnMark.isEnabled = false
-                btnMark.backgroundTintList =
-                    ContextCompat.getColorStateList(ctx, R.color.paid_gray)
+                btnMark.backgroundTintList = ContextCompat.getColorStateList(ctx, R.color.paid_gray)
             } else {
                 btnMark.text = "MARK"
                 btnMark.isEnabled = true
-                btnMark.backgroundTintList =
-                    ContextCompat.getColorStateList(ctx, R.color.green_success)
+                btnMark.backgroundTintList = ContextCompat.getColorStateList(ctx, R.color.green_success)
             }
         }
 
         fun bind(item: Item) {
             tvName.text = item.name
-
-            // parse "3 kg"
             val parts = item.quantity.trim().split(" ")
             val qText = parts.getOrNull(0) ?: "1"
             val unit = parts.getOrNull(1) ?: "kg"
@@ -132,12 +126,12 @@ class ItemsAdapter(
 
             btnEdit.setOnClickListener { onEdit(item) }
 
-            styleMark(item.isPurchased)
+            styleMark(item.purchased)
             btnMark.setOnClickListener {
                 val qtyVal = etQtyVal.text?.toString()?.toDoubleOrNull() ?: 0.0
                 val price = etPrice.text?.toString()?.toDoubleOrNull() ?: 0.0
-                onMarkPaid(item.id, qtyVal, unit, price)   // ✅ single atomic update
-                styleMark(true)                             // instant feedback
+                onMarkPaid(item.id, qtyVal, unit, price) // single atomic update
+                styleMark(true)                          // instant UI feedback
                 updateTotal()
             }
         }
