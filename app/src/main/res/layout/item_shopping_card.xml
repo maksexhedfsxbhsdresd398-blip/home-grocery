@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="@color/card_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +14,7 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- top row: name + total + edit icon -->
+        <!-- Title + total + edit -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -23,9 +24,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:textColor="#111827"
                 android:textSize="18sp"
-                android:text="Item"/>
+                android:textColor="#111827"/>
 
             <TextView
                 android:id="@+id/tvTotal"
@@ -41,19 +41,19 @@
                 android:layout_height="32dp"
                 android:layout_toStartOf="@id/tvTotal"
                 android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:tint="#6B7280"
                 android:src="@android:drawable/ic_menu_edit"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@null"/>
         </RelativeLayout>
 
-        <!-- controls row -->
+        <!-- Controls: qty | unit | price | MARK -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
@@ -69,13 +69,11 @@
                     android:id="@+id/etQtyVal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:text="1"/>
+                    android:inputType="numberDecimal"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <Space android:layout_width="8dp" android:layout_height="1dp"/>
 
-            <!-- unit chip (non-editable) -->
             <TextView
                 android:id="@+id/tvUnit"
                 android:layout_width="0dp"
@@ -83,7 +81,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="kg"
-                android:textColor="#4B5563"
+                android:textColor="@color/gray_600"
                 android:background="@drawable/rounded_box"/>
 
             <Space android:layout_width="8dp" android:layout_height="1dp"/>
@@ -112,15 +110,14 @@
                 android:id="@+id/btnMark"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:text="MARK"
                 android:minWidth="0dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:text="MARK"
                 android:textAllCaps="true"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
-                app:cornerRadius="12dp"
-                android:backgroundTint="@color/green_success"/>
+                app:cornerRadius="14dp"/>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
