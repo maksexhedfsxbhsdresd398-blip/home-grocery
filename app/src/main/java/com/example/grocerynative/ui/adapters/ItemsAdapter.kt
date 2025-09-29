@@ -28,7 +28,7 @@ class ItemsAdapter(
     private var data: MutableList<Item> = items.toMutableList()
     private var currentMode: Mode = mode
 
-    override fun getItemViewType(position: Int): Int = if (currentMode == Mode.MANAGE) 0 else 1
+    override fun getItemViewType(position: Int) = if (currentMode == Mode.MANAGE) 0 else 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inf = LayoutInflater.from(parent.context)
@@ -36,43 +36,48 @@ class ItemsAdapter(
         else ShopVH(inf.inflate(R.layout.item_shopping_card, parent, false))
     }
 
-    override fun getItemCount(): Int = data.size
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = data[position]
+    override fun getItemCount() = data.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, pos: Int) {
+        val item = data[pos]
         if (holder is ManageVH) holder.bind(item)
         if (holder is ShopVH) holder.bind(item)
     }
 
     fun update(items: List<Item>, mode: Mode) {
         currentMode = mode
-        data.clear()
-        data.addAll(items)
+        data.clear(); data.addAll(items)
         notifyDataSetChanged()
     }
 
-    // MANAGE
+    // ---------------- MANAGE ----------------
     inner class ManageVH(v: View) : RecyclerView.ViewHolder(v) {
-        private val ivCheck: ImageView = v.findViewById(R.id.ivCheck)
+        private val flTick: View = v.findViewById(R.id.flTick)
+        private val ivTick: ImageView = v.findViewById(R.id.ivTick)
         private val tvName: TextView = v.findViewById(R.id.tvName)
         private val tvQty: TextView = v.findViewById(R.id.tvQty)
         private val btnEdit: ImageButton = v.findViewById(R.id.btnEdit)
         private val btnDelete: ImageButton = v.findViewById(R.id.btnDelete)
 
+        private fun styleTick(paid: Boolean, view: View, check: ImageView) {
+            view.background = ContextCompat.getDrawable(view.context,
+                if (paid) R.drawable.tick_badge_green else R.drawable.tick_badge_outline)
+            check.visibility = if (paid) View.VISIBLE else View.GONE
+        }
+
         fun bind(item: Item) {
             tvName.text = item.name.ifBlank { "(unnamed)" }
             tvQty.text = "Qty: ${item.quantity}"
-            ivCheck.setImageResource(
-                if (item.purchased) android.R.drawable.checkbox_on_background
-                else android.R.drawable.checkbox_off_background
-            )
-            ivCheck.setOnClickListener { onToggle(item.id) }
+            styleTick(item.purchased, flTick, ivTick)
+
+            // Toggle by tapping the badge
+            flTick.setOnClickListener { onToggle(item.id) }
+
             btnEdit.setOnClickListener { onEdit(item) }
             btnDelete.setOnClickListener { onDelete(item.id) }
         }
     }
 
-    // SHOPPING
+    // ---------------- SHOPPING ----------------
     inner class ShopVH(v: View) : RecyclerView.ViewHolder(v) {
         private val tvName: TextView = v.findViewById(R.id.tvName)
         private val tvTotal: TextView = v.findViewById(R.id.tvTotal)
@@ -82,27 +87,25 @@ class ItemsAdapter(
         private val etPrice: TextInputEditText = v.findViewById(R.id.etPrice)
         private val btnMark: MaterialButton = v.findViewById(R.id.btnMark)
 
-        private fun calcTotal(q: String, p: String): Double {
-            val qty = q.toDoubleOrNull() ?: 0.0
-            val price = p.toDoubleOrNull() ?: 0.0
-            return qty * price
-        }
+        private fun calcTotal(q: String, p: String): Double =
+            (q.toDoubleOrNull() ?: 0.0) * (p.toDoubleOrNull() ?: 0.0)
 
-        private fun styleMark(paid: Boolean) {
+        private fun styleButton(paid: Boolean) {
             val ctx = itemView.context
             if (paid) {
                 btnMark.text = "PAID"
                 btnMark.isEnabled = false
-                btnMark.backgroundTintList = ContextCompat.getColorStateList(ctx, R.color.paid_gray)
+                btnMark.backgroundTintList = ContextCompat.getColorStateList(ctx, R.color.paid_green)
             } else {
                 btnMark.text = "MARK"
                 btnMark.isEnabled = true
-                btnMark.backgroundTintList = ContextCompat.getColorStateList(ctx, R.color.green_success)
+                btnMark.backgroundTintList = ContextCompat.getColorStateList(ctx, R.color.mark_blue)
             }
         }
 
         fun bind(item: Item) {
             tvName.text = item.name
+
             val parts = item.quantity.trim().split(" ")
             val qText = parts.getOrNull(0) ?: "1"
             val unit = parts.getOrNull(1) ?: "kg"
@@ -126,12 +129,12 @@ class ItemsAdapter(
 
             btnEdit.setOnClickListener { onEdit(item) }
 
-            styleMark(item.purchased)
+            styleButton(item.purchased)
             btnMark.setOnClickListener {
                 val qtyVal = etQtyVal.text?.toString()?.toDoubleOrNull() ?: 0.0
                 val price = etPrice.text?.toString()?.toDoubleOrNull() ?: 0.0
-                onMarkPaid(item.id, qtyVal, unit, price) // single atomic update
-                styleMark(true)                          // instant UI feedback
+                onMarkPaid(item.id, qtyVal, unit, price)   // atomic: qty + price + purchased=true
+                styleButton(true)                          // instant success style
                 updateTotal()
             }
         }
