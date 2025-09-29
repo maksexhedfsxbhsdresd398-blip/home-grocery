@@ -6,6 +6,17 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Clear All (top-right of section) -->
+    <TextView
+        android:id="@+id/btnClearAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:text="Clear All"
+        android:textStyle="bold"
+        android:textColor="#DC2626"
+        android:paddingBottom="8dp"/>
+
     <!-- Item name -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
@@ -66,7 +77,6 @@
             app:boxCornerRadiusBottomStart="16dp"
             app:boxCornerRadiusBottomEnd="16dp">
 
-            <!-- NOTE: hint says "Unit" (not "kg"), so you won't see "kg" twice -->
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
                 android:id="@+id/autoUnit"
                 android:layout_width="match_parent"
@@ -90,7 +100,6 @@
             android:paddingEnd="18dp"/>
     </LinearLayout>
 
-    <!-- soft divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
