@@ -105,52 +105,55 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopViews() {
-        // Manage header (same as before)
-        val manage = layoutInflater.inflate(R.layout.manage_top, binding.topContainer, false)
-        etName = manage.findViewById(R.id.etName)
-        etQtyVal = manage.findViewById(R.id.etQtyVal)
-        autoUnit = manage.findViewById(R.id.autoUnit)
-        unitLayout = manage.findViewById(R.id.unitLayout)
-        btnAddItem = manage.findViewById(R.id.btnAddItem)
-        btnClearAllHeader = manage.findViewById(R.id.btnClearAll)
+    // Inflate Manage header
+    val manage = layoutInflater.inflate(R.layout.manage_top, binding.topContainer, false)
+    etName = manage.findViewById(R.id.etName)
+    etQtyVal = manage.findViewById(R.id.etQtyVal)
+    autoUnit = manage.findViewById(R.id.autoUnit)
+    unitLayout = manage.findViewById(R.id.unitLayout)
+    btnAddItem = manage.findViewById(R.id.btnAddItem)
+    btnClearAllHeader = manage.findViewById(R.id.btnClearAll)
 
-        autoUnit?.setSimpleItems(resources.getStringArray(R.array.units_array))
-        autoUnit?.setText(getString(R.string.unit_kg), false)
-        autoUnit?.setOnClickListener { autoUnit?.showDropDown() }
-        autoUnit?.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) autoUnit?.showDropDown() }
-        unitLayout?.setEndIconOnClickListener { autoUnit?.showDropDown() }
+    // Units dropdown: single visible label
+    autoUnit?.setSimpleItems(resources.getStringArray(R.array.units_array))
+    autoUnit?.setText(getString(R.string.unit_kg), false)
+    autoUnit?.setOnClickListener { autoUnit?.showDropDown() }
+    autoUnit?.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) autoUnit?.showDropDown() }
+    unitLayout?.setEndIconOnClickListener { autoUnit?.showDropDown() }
 
-        btnAddItem?.setOnClickListener {
-            val name = etName?.text?.toString()?.trim().orEmpty()
-            val qty = etQtyVal?.text?.toString()?.toDoubleOrNull() ?: 0.0
-            val unit = autoUnit?.text?.toString()?.ifBlank { "item" } ?: "item"
-            if (name.isNotEmpty() && qty > 0) {
-                val uid = FirebaseAuth.getInstance().currentUser?.uid
-                viewModel.addItem(name, qty, unit, uid)
-                etName?.setText("")
-                etQtyVal?.setText("")
-                autoUnit?.setText(getString(R.string.unit_kg), false)
-                Toast.makeText(this, "Item added", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Enter name and value", Toast.LENGTH_SHORT).show()
-            }
+    btnAddItem?.setOnClickListener {
+        val name = etName?.text?.toString()?.trim().orEmpty()
+        val qty = etQtyVal?.text?.toString()?.toDoubleOrNull() ?: 0.0
+        val unit = autoUnit?.text?.toString()?.ifBlank { getString(R.string.unit_kg) }
+            ?: getString(R.string.unit_kg)
+        if (name.isNotEmpty() && qty > 0) {
+            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            viewModel.addItem(name, qty, unit, uid)
+            etName?.setText("")
+            etQtyVal?.setText("")
+            autoUnit?.setText(getString(R.string.unit_kg), false)
+            android.widget.Toast.makeText(this, "Item added", android.widget.Toast.LENGTH_SHORT).show()
+        } else {
+            android.widget.Toast.makeText(this, "Enter name and value", android.widget.Toast.LENGTH_SHORT).show()
         }
-
-        btnClearAllHeader?.setOnClickListener {
-            ConfirmClearDialog { viewModel.clearAll() }.show(supportFragmentManager, "clear")
-        }
-
-        binding.topContainer.addView(manage, 0)
-
-        // Shopping header (new)
-        val shopping = layoutInflater.inflate(R.layout.shopping_top, binding.topContainer, false)
-        shopping.id = View.generateViewId()
-        val btnClearShopping = shopping.findViewById<TextView>(R.id.btnClearShopping)
-        btnClearShopping.setOnClickListener {
-            ConfirmClearDialog { viewModel.clearAll() }.show(supportFragmentManager, "clear_shop")
-        }
-        binding.topContainer.addView(shopping, 1)
     }
+
+    btnClearAllHeader?.setOnClickListener {
+        com.example.grocerynative.ui.dialogs.ConfirmClearDialog { viewModel.clearAll() }
+            .show(supportFragmentManager, "clear_manage")
+    }
+
+    // Add both headers (Manage + Shopping) into the container
+    binding.topContainer.addView(manage, 0)
+
+    val shopping = layoutInflater.inflate(R.layout.shopping_top, binding.topContainer, false)
+    shopping.id = View.generateViewId()
+    shopping.findViewById<TextView>(R.id.btnClearShopping).setOnClickListener {
+        com.example.grocerynative.ui.dialogs.ConfirmClearDialog { viewModel.clearAll() }
+            .show(supportFragmentManager, "clear_shop")
+    }
+    binding.topContainer.addView(shopping, 1)
+}
 
     private fun setTopForMode(mode: Mode) {
         binding.topContainer.getChildAt(0).visibility =
