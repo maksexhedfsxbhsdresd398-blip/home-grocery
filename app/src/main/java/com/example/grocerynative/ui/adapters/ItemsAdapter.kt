@@ -22,7 +22,8 @@ class ItemsAdapter(
     private val onToggle: (String) -> Unit,
     private val onDelete: (String) -> Unit,
     private val onEdit: (Item) -> Unit,
-    private val onPriceChange: (String, Double) -> Unit
+    /** ✅ new: atomic mark callback */
+    private val onMarkPaid: (id: String, qtyVal: Double, unit: String, price: Double) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var data: MutableList<Item> = items.toMutableList()
@@ -99,48 +100,4 @@ class ItemsAdapter(
             } else {
                 btnMark.text = "MARK"
                 btnMark.isEnabled = true
-                btnMark.backgroundTintList =
-                    ContextCompat.getColorStateList(ctx, R.color.green_success)
-            }
-        }
-
-        fun bind(item: Item) {
-            tvName.text = item.name
-
-            // parse "3 kg"
-            val parts = item.quantity.trim().split(" ")
-            val qText = parts.getOrNull(0) ?: "1"
-            val unit = parts.getOrNull(1) ?: "kg"
-            tvUnit.text = unit
-            etQtyVal.setText(qText)
-            etPrice.setText(if (item.actualUnitPrice == 0.0) "" else item.actualUnitPrice.toString())
-
-            // live total update
-            fun updateTotal() {
-                val t = calcTotal(etQtyVal.text?.toString() ?: "", etPrice.text?.toString() ?: "")
-                tvTotal.text = "Total: Rs. %.2f".format(t)
-            }
-            updateTotal()
-
-            val watcher = object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { updateTotal() }
-                override fun afterTextChanged(s: Editable?) {}
-            }
-            etQtyVal.removeTextChangedListener(watcher); etQtyVal.addTextChangedListener(watcher)
-            etPrice.removeTextChangedListener(watcher);  etPrice.addTextChangedListener(watcher)
-
-            btnEdit.setOnClickListener { onEdit(item) }
-
-            styleMark(item.isPurchased)
-            btnMark.setOnClickListener {
-                // Save price, mark purchased → ViewModel will persist and header will recompute
-                val price = etPrice.text?.toString()?.toDoubleOrNull() ?: 0.0
-                onPriceChange(item.id, price)
-                onToggle(item.id)
-                styleMark(true) // local feedback; list will refresh from state anyway
-                updateTotal()
-            }
-        }
-    }
-}
+                btnMark.backgroundTint
