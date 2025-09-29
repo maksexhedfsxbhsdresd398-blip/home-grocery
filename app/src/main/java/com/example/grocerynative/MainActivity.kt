@@ -63,9 +63,7 @@ class MainActivity : AppCompatActivity() {
             items = emptyList(),
             mode = Mode.MANAGE,
             onToggle = { id -> viewModel.togglePurchased(id) },
-            onDelete = { id ->
-                ConfirmDeleteDialog { viewModel.deleteItem(id) }.show(supportFragmentManager, "del")
-            },
+            onDelete = { id -> viewModel.deleteItem(id) },
             onEdit = { item ->
                 EditItemDialog(item) { name, v, u ->
                     viewModel.editItem(item.id, name, v, u)
@@ -74,7 +72,6 @@ class MainActivity : AppCompatActivity() {
             onPriceChange = { id, price -> viewModel.updateUnitPrice(id, price) }
         )
 
-        // ✅ REQUIRED: give the RecyclerView a LayoutManager
         binding.recycler.layoutManager = LinearLayoutManager(this)
         binding.recycler.setHasFixedSize(true)
         binding.recycler.adapter = adapter
@@ -105,6 +102,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopViews() {
+        // Manage header (same as before)
         val manage = layoutInflater.inflate(R.layout.manage_top, binding.topContainer, false)
         etName = manage.findViewById(R.id.etName)
         etQtyVal = manage.findViewById(R.id.etQtyVal)
@@ -141,8 +139,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.topContainer.addView(manage, 0)
 
-        val shopping = layoutInflater.inflate(android.R.layout.simple_list_item_2, binding.topContainer, false)
+        // Shopping header (new)
+        val shopping = layoutInflater.inflate(R.layout.shopping_top, binding.topContainer, false)
         shopping.id = View.generateViewId()
+        val btnClearShopping = shopping.findViewById<TextView>(R.id.btnClearShopping)
+        btnClearShopping.setOnClickListener {
+            ConfirmClearDialog { viewModel.clearAll() }.show(supportFragmentManager, "clear_shop")
+        }
         binding.topContainer.addView(shopping, 1)
     }
 
@@ -156,10 +159,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateShoppingSummary() {
         val shopping = binding.topContainer.getChildAt(1)
-        val title = shopping.findViewById<TextView>(android.R.id.text1)
-        val subtitle = shopping.findViewById<TextView>(android.R.id.text2)
-        title.text = "Shopping Cart Summary"
-        subtitle.text = "Actual Paid: Rs. %.2f".format(viewModel.actualTotalRs())
+        val paidValue = shopping.findViewById<TextView>(R.id.tvPaidValue)
+        paidValue.text = "Rs. %.2f".format(viewModel.actualTotalRs())
     }
 
     private fun applyNavStyle(activeManage: Boolean) {
