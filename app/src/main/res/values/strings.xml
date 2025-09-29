@@ -1,7 +1,24 @@
 <resources>
+    <!-- App -->
+    <string name="app_name">HomeGrocery</string>
+
+    <!-- Manage header -->
     <string name="hint_item_name">Item Name (e.g., Milk)</string>
     <string name="hint_value">Value</string>
     <string name="label_unit">Unit</string>
     <string name="btn_add_item">Add Item</string>
     <string name="unit_kg">kg</string>
+    <string name="clear_all">Clear All</string>
+
+    <!-- Shopping header -->
+    <string name="shopping_title">Shopping Cart Summary</string>
+    <string name="clear_all_items">Clear All Items</string>
+
+    <!-- Bottom nav -->
+    <string name="manage_list">Manage List</string>
+    <string name="shopping_mode">Shopping Mode</string>
+
+    <!-- Toasts -->
+    <string name="toast_item_added">Item added</string>
+    <string name="toast_enter_name_value">Enter name and value</string>
 </resources>
