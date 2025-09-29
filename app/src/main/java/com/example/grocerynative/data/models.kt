@@ -13,11 +13,10 @@ data class GroceryList(
 data class Item(
     val id: String = "",
     val name: String = "",
-    val quantity: String = "0 item",          // "2 kg", "1 pack", "1 dozen"
+    val quantity: String = "0 item",    // e.g. "2 kg"
     val estimatedPrice: Double? = 0.0,
     val actualUnitPrice: Double = 0.0,
-    /** IMPORTANT: must be 'purchased' to match Firestore field */
-    val purchased: Boolean = false,
+    val purchased: Boolean = false,     // <-- must be 'purchased'
     val addedBy: String? = null,
     val timestamp: String? = null
 )
