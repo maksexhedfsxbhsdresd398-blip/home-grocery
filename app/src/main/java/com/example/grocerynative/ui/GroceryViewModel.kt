@@ -27,7 +27,7 @@ class GroceryViewModel(private val repo: FirestoreRepository): ViewModel() {
         repo.ensureAuth()
         repo.listen(
             onUpdate = { incoming -> _state.value = incoming },
-            onError = { /* surface if needed */ }
+            onError = { /* log if needed */ }
         )
     }
 
@@ -40,7 +40,7 @@ class GroceryViewModel(private val repo: FirestoreRepository): ViewModel() {
             quantity = "$qtyValue $qtyUnit",
             estimatedPrice = 0.0,
             actualUnitPrice = 0.0,
-            isPurchased = false,
+            purchased = false,
             addedBy = userId,
             timestamp = java.time.Instant.now().toString()
         )
@@ -61,7 +61,7 @@ class GroceryViewModel(private val repo: FirestoreRepository): ViewModel() {
 
     fun togglePurchased(id: String) = viewModelScope.launch {
         val newItems = _state.value.items.map {
-            if (it.id == id) it.copy(isPurchased = !it.isPurchased) else it
+            if (it.id == id) it.copy(purchased = !it.purchased) else it
         }
         _state.value = _state.value.copy(items = newItems)
         repo.replaceItems(newItems)
@@ -75,13 +75,13 @@ class GroceryViewModel(private val repo: FirestoreRepository): ViewModel() {
         repo.replaceItems(newItems)
     }
 
-    /** ✅ Atomic: set quantity + price + purchased in one write (fixes your MARK issue) */
+    /** Atomic: quantity + price + purchased=true in a single write */
     fun markItemPaid(id: String, qtyVal: Double, unit: String, price: Double) = viewModelScope.launch {
         val newItems = _state.value.items.map {
             if (it.id == id) it.copy(
                 quantity = "$qtyVal $unit",
                 actualUnitPrice = price,
-                isPurchased = true
+                purchased = true
             ) else it
         }
         _state.value = _state.value.copy(items = newItems)
@@ -97,10 +97,10 @@ class GroceryViewModel(private val repo: FirestoreRepository): ViewModel() {
     }
 
     fun actualTotalRs(): Double {
-        return _state.value.items.filter { it.isPurchased }.sumOf { item ->
+        return _state.value.items.filter { it.purchased }.sumOf { item ->
             val (v, u) = splitQuantity(item.quantity)
             val normalized = normalizeToKgOrL(v, u)
-            normalized * (item.actualUnitPrice)
+            normalized * item.actualUnitPrice
         }
     }
 }
