@@ -77,16 +77,16 @@ class GroceryViewModel(private val repo: FirestoreRepository): ViewModel() {
 
     /** Atomic: quantity + price + purchased=true in a single write */
     fun markItemPaid(id: String, qtyVal: Double, unit: String, price: Double) = viewModelScope.launch {
-        val newItems = _state.value.items.map {
-            if (it.id == id) it.copy(
-                quantity = "$qtyVal $unit",
-                actualUnitPrice = price,
-                purchased = true
-            ) else it
-        }
-        _state.value = _state.value.copy(items = newItems)
-        repo.replaceItems(newItems)
+    val newItems = _state.value.items.map {
+        if (it.id == id) it.copy(
+            quantity = "$qtyVal $unit",
+            actualUnitPrice = price,
+            purchased = true
+        ) else it
     }
+    _state.value = _state.value.copy(items = newItems)
+    repo.replaceItems(newItems)   // single write: no overwrites
+}
 
     fun editItem(id: String, newName: String, newQtyVal: Double, newQtyUnit: String) = viewModelScope.launch {
         val newItems = _state.value.items.map {
